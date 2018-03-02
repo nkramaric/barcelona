@@ -7,3 +7,5 @@ carousel:
     image: http://www.somethingelse.com
 footer:
   link: http://what.com
+body:
+  location: Toronto
