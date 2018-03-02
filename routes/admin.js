@@ -18,6 +18,7 @@ const readDir = promisify(fs.readdir);
 const writeFile = promisify(fs.writeFile);
 const lstat = promisify(fs.lstat);
 const exec = promisify(require('child_process').exec);
+const mkdirp = promisify(require('mkdirp'));
 
 async function getPages(files, root) {
     if (!files || files.length == 0) {
@@ -69,8 +70,8 @@ router.get('/edit/:name*', asyncify(async (req, res, next) => {
     try {
         fileData = await readFile(uri, 'utf8');
     } catch(e) {
-        res.status(404).json({ msg: "route doesn't exist "});
-        return;
+        /*res.status(404).json({ msg: "route doesn't exist "});*/
+        fileData = '';
     }
     res.render('pages/edit', { route: req.params.name, data: fileData });
 }));
@@ -80,8 +81,8 @@ router.post('/edit/:name*', asyncify(async (req, res, next) => {
     try {
         await lstat(uri);
     } catch(e) {
-        res.status(404).json({ msg: "route doesn't exist"});
-        return;
+        const dirName = path.dirname(uri);
+        await mkdirp(dirName);
     }
     const fileData = await writeFile(uri, req.body, 'utf8');
     try {
