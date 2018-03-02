@@ -8,14 +8,16 @@ const express = require('express');
 const router = express.Router();
 const { asyncify } = require('../util/async-middleware');
 const fs = require('fs');
+const YAML = require('yamljs');
+const path = require('path');
+const Git = require('nodegit');
 const { promisify } = require('util');
+
 const readFile = promisify(fs.readFile);
 const readDir = promisify(fs.readdir);
 const writeFile = promisify(fs.writeFile);
 const lstat = promisify(fs.lstat);
-const YAML = require('yamljs');
-const path = require('path');
-const Git = require('nodegit');
+const exec = promisify(require('child_process').exec);
 
 async function getPages(files, root) {
     if (!files || files.length == 0) {
@@ -82,11 +84,9 @@ router.post('/edit/:name*', asyncify(async (req, res, next) => {
         return;
     }
     const fileData = await writeFile(uri, req.body, 'utf8');
-    const repo = await Git.Repository.open(path.resolve('.'));
-    const commit = await repo.getBranchCommit('master');
-    const msg = await commit.message();
-    console.log(msg);
-    res.render('pages/edit', { route: req.params.name, data: fileData });
+    const { stdout, stderr } = await exec('git commit -m "made a commit"');
+    console.log(stdout);
+    res.json('pages/edit', { data: stdout });
 }));
 
 module.exports = router;
