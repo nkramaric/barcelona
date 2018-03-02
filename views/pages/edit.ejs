@@ -16,7 +16,7 @@
         <p><%= route %></p>
         <div id="container" style="width:800px;height:600px;border:1px solid grey"></div>
         <br/>
-        <button type="button" class="btn btn-primary">Save</button>
+        <button id="save" type="button" class="btn btn-primary">Save</button>
     </div>
 </main>
 
@@ -26,15 +26,27 @@
 
 <script src="/static/vendor/monaco-editor/min/vs/loader.js"></script>
 <script>
+    var editor;
 	require.config({ paths: { 'vs': '/static/vendor/monaco-editor/min/vs' }});
 	require(['vs/editor/editor.main'], function() {
-		var editor = monaco.editor.create(document.getElementById('container'), {
+		editor = monaco.editor.create(document.getElementById('container'), {
 			value: [`<%= data %>`
 			].join('\n'),
 			language: 'yaml'
 		});
 	});
+    $('#save').click(function() {
+        var value = editor.getValue();
+        console.log(value);
+        $.ajax({
+            type: 'POST',
+            url: '',
+            data: value,
+            contentType: 'text/plain'
+        });
+    });
 </script>
+
 
 </body>
 </html>

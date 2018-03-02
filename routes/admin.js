@@ -15,6 +15,7 @@ const writeFile = promisify(fs.writeFile);
 const lstat = promisify(fs.lstat);
 const YAML = require('yamljs');
 const path = require('path');
+const Git = require('nodegit');
 
 async function getPages(files, root) {
     if (!files || files.length == 0) {
@@ -72,7 +73,7 @@ router.get('/edit/:name*', asyncify(async (req, res, next) => {
     res.render('pages/edit', { route: req.params.name, data: fileData });
 }));
 
-router.post('edit/:name*', asyncify(async (req, res, next) => {
+router.post('/edit/:name*', asyncify(async (req, res, next) => {
     const uri = getFileUri(req);
     try {
         await lstat(uri);
@@ -81,8 +82,11 @@ router.post('edit/:name*', asyncify(async (req, res, next) => {
         return;
     }
     const fileData = await writeFile(uri, req.body, 'utf8');
+    const repo = await Git.Repository.open(path.resolve('.'));
+    const commit = await repo.getBranchCommit('master');
+    const msg = await commit.message();
+    console.log(msg);
     res.render('pages/edit', { route: req.params.name, data: fileData });
 }));
-
 
 module.exports = router;
