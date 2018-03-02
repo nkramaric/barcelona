@@ -84,6 +84,7 @@ router.post('/edit/:name*', asyncify(async (req, res, next) => {
         return;
     }
     const fileData = await writeFile(uri, req.body, 'utf8');
+    await exec('git add .');
     const { stdout, stderr } = await exec('git commit -m "made a commit"');
     console.log(stdout);
     res.json('pages/edit', { data: stdout });
