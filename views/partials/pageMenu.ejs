@@ -1,0 +1,22 @@
+<!-- views/partials/pageMenu.ejs -->
+<p>
+    <%= dir %> 
+</p>
+<% if (files.length) { %>
+    <ul>
+<% } %>
+
+<% files.forEach(function(file) { %>
+    <li>
+        <% if (typeof file === 'string') { %>
+            <a href="<%= dir + file %>"><%= file %></a>    
+        <% } else { %>
+            <%- include('pageMenu', file) %>
+        <% } %>
+    </li>
+<% }) %>
+
+<% if (files.length) { %>
+    </ul>
+<% } %>
+

@@ -11,6 +11,7 @@ const fs = require('fs');
 const { promisify } = require('util');
 const readFile = promisify(fs.readFile);
 const readDir = promisify(fs.readdir);
+const writeFile = promisify(fs.writeFile);
 const lstat = promisify(fs.lstat);
 const YAML = require('yamljs');
 const path = require('path');
@@ -40,20 +41,48 @@ router.get('/', asyncify(async (req, res, next) => {
     var files = await readDir('./pages');
     var pages = await getPages(files, './pages/');
     console.log(pages);
-    res.render('pages/index', pages);
+    res.render('pages/index', { 
+        pages: pages
+    });
 }));
 
-router.get('/', asyncify(async (req, res, next) => {
+router.get('/about', asyncify(async (req, res, next) => {
     res.render('pages/about');
 }));
 
-router.get('/:name*', asyncify(async (req, res, next) => {
-    console.log(req.params.name);
-    console.log(req.param(0));
-    const uri = path.resolve('./pages/' + req.params.name + '.yaml');
-    const fileData = await readFile(uri, 'utf8');
-    const data = YAML.parse(fileData);
-    res.json(data);
+const getFileUri = function(req) {
+    let uri = req.params.name;
+    if (req.params['0']) {
+        uri = uri + req.params['0'];
+    }
+    uri = path.resolve('./pages/' + uri + '.yaml');
+    return uri;
+}
+
+router.get('/edit/:name*', asyncify(async (req, res, next) => {
+    console.log(req.params);
+    const uri = getFileUri(req);
+    let fileData;
+    try {
+        fileData = await readFile(uri, 'utf8');
+    } catch(e) {
+        res.status(404).json({ msg: "route doesn't exist "});
+        return;
+    }
+    res.render('pages/edit', { route: req.params.name, data: fileData });
 }));
+
+router.post('edit/:name*', asyncify(async (req, res, next) => {
+    const uri = getFileUri(req);
+    try {
+        await lstat(uri);
+    } catch(e) {
+        res.status(404).json({ msg: "route doesn't exist "});
+        return;
+    }
+    const fileData = await writeFile(uri, req.body, 'utf8');
+    res.render('pages/edit', { route: req.params.name, data: fileData });
+}));
+
 
 module.exports = router;

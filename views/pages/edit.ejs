@@ -1,0 +1,40 @@
+<!-- views/pages/index.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+<header>
+    <% include ../partials/header %>
+</header>
+
+<main>
+    <div class="jumbotron">
+        <h1>Edit</h1>
+        <p><%= route %></p>
+        <div id="container" style="width:800px;height:600px;border:1px solid grey"></div>
+        <br/>
+        <button type="button" class="btn btn-primary">Save</button>
+    </div>
+</main>
+
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script src="/static/vendor/monaco-editor/min/vs/loader.js"></script>
+<script>
+	require.config({ paths: { 'vs': '/static/vendor/monaco-editor/min/vs' }});
+	require(['vs/editor/editor.main'], function() {
+		var editor = monaco.editor.create(document.getElementById('container'), {
+			value: [`<%= data %>`
+			].join('\n'),
+			language: 'yaml'
+		});
+	});
+</script>
+
+</body>
+</html>
