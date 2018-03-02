@@ -1,0 +1,9 @@
+pageTitle: Hello World
+heading: This is the Home Page!
+carousel:
+  - title: Welcome Champ!,
+    image: http://www.something.com
+  - title: Welcome Friend!,
+    image: http://www.somethingelse.com
+footer:
+  link: http://what.com

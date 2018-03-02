@@ -10,11 +10,37 @@ const { asyncify } = require('../util/async-middleware');
 const fs = require('fs');
 const { promisify } = require('util');
 const readFile = promisify(fs.readFile);
+const readDir = promisify(fs.readdir);
+const lstat = promisify(fs.lstat);
 const YAML = require('yamljs');
 const path = require('path');
 
+async function getPages(files, root) {
+    if (!files || files.length == 0) {
+        return ;
+    }
+    let response = {
+        dir: root,
+        files: []   
+    };
+    for (let file of files) {
+        const fileUri = root + file;
+        const stats = await lstat(fileUri);
+        if (stats.isDirectory()) {
+            let fileList = await readDir(fileUri)
+            response.files.push(await getPages(fileList, fileUri + '/'));
+        } else {
+            response.files.push(file);
+        }
+    }
+    return response;
+}
+
 router.get('/', asyncify(async (req, res, next) => {
-    res.render('pages/index');
+    var files = await readDir('./pages');
+    var pages = await getPages(files, './pages/');
+    console.log(pages);
+    res.render('pages/index', pages);
 }));
 
 router.get('/', asyncify(async (req, res, next) => {
