@@ -87,12 +87,12 @@ router.post('/edit/:name*', asyncify(async (req, res, next) => {
     try {
         await exec('git add .');
         const { stdout, stderr } = await exec('git commit -m "made a commit"');
+        console.log(stdout);
+        res.json('pages/edit', { data: stdout });
     } catch (e) {
         res.status(500).json({ msg: "error commiting changes"});
         return;
     }
-    console.log(stdout);
-    res.json('pages/edit', { data: stdout });
 }));
 
 module.exports = router;
